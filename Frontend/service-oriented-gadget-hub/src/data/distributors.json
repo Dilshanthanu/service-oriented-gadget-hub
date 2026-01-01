@@ -1,17 +1,17 @@
 [
-    {
-        "id": "techworld",
-        "name": "TechWorld",
-        "email": "techworld@test.com"
-    },
-    {
-        "id": "electrocom",
-        "name": "ElectroCom",
-        "email": "electrocom@test.com"
-    },
-    {
-        "id": "gadgetcentral",
-        "name": "Gadget Central",
-        "email": "gadgetcentral@test.com"
-    }
+  {
+    "id": "techworld",
+    "name": "TechWorld",
+    "email": "techworld@test.com"
+  },
+  {
+    "id": "electrocom",
+    "name": "ElectroCom",
+    "email": "electrocom@test.com"
+  },
+  {
+    "id": "gadgetcentral",
+    "name": "Gadget Central",
+    "email": "gadgetcentral@test.com"
+  }
 ]

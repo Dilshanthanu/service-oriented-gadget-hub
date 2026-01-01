@@ -1,38 +1,38 @@
 [
-    {
-        "id": "1",
-        "role": "customer",
-        "name": "John Customer",
-        "email": "customer@test.com",
-        "username": "john",
-        "password": "123",
-        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
-    },
-    {
-        "id": "2",
-        "role": "admin",
-        "name": "System Admin",
-        "email": "admin@test.com",
-        "username": "admin",
-        "password": "admin123",
-        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
-    },
-    {
-        "id": "3",
-        "role": "distributor",
-        "name": "TechWorld Staff",
-        "email": "tw@test.com",
-        "username": "techworld",
-        "password": "dist123",
-        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TW"
-    },
-    {
-        "id": "4",
-        "role": "distributor",
-        "name": "ElectroCom Staff",
-        "email": "ec@test.com",
-        "username": "electrocom",
-        "password": "dist123",
-        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EC"
-    }
+  {
+    "id": "1",
+    "role": "customer",
+    "name": "John Customer",
+    "email": "customer@test.com",
+    "username": "john",
+    "password": "123",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
+  },
+  {
+    "id": "2",
+    "role": "admin",
+    "name": "System Admin",
+    "email": "admin@test.com",
+    "username": "admin",
+    "password": "admin123",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
+  },
+  {
+    "id": "3",
+    "role": "distributor",
+    "name": "TechWorld Staff",
+    "email": "tw@test.com",
+    "username": "techworld",
+    "password": "dist123",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=TW"
+  },
+  {
+    "id": "4",
+    "role": "distributor",
+    "name": "ElectroCom Staff",
+    "email": "ec@test.com",
+    "username": "electrocom",
+    "password": "dist123",
+    "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=EC"
+  }
 ]

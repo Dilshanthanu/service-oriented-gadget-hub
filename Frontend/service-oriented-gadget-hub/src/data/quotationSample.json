@@ -1,27 +1,27 @@
 [
-    {
-        "requestId": 1,
-        "productName": "iPhone 14 Pro Max",
-        "quantity": 50,
-        "responses": [
-            {
-                "distributor": "TechWorld",
-                "unitPrice": 1100,
-                "stock": 50,
-                "delivery": 3
-            },
-            {
-                "distributor": "ElectroCom",
-                "unitPrice": 1080,
-                "stock": 40,
-                "delivery": 5
-            }
-        ]
-    },
-    {
-        "requestId": 2,
-        "productName": "MacBook Air M2",
-        "quantity": 10,
-        "responses": []
-    }
+  {
+    "requestId": 1,
+    "productName": "iPhone 14 Pro Max",
+    "quantity": 50,
+    "responses": [
+      {
+        "distributor": "TechWorld",
+        "unitPrice": 1100,
+        "stock": 50,
+        "delivery": 3
+      },
+      {
+        "distributor": "ElectroCom",
+        "unitPrice": 1080,
+        "stock": 40,
+        "delivery": 5
+      }
+    ]
+  },
+  {
+    "requestId": 2,
+    "productName": "MacBook Air M2",
+    "quantity": 10,
+    "responses": []
+  }
 ]

@@ -1,20 +1,20 @@
 [
-    {
-        "orderId": 101,
-        "customerName": "John Doe",
-        "product": "iPhone 14",
-        "price": 1100,
-        "quantity": 1,
-        "status": "Confirmed",
-        "date": "2023-10-01"
-    },
-    {
-        "orderId": 102,
-        "customerName": "Jane Smith",
-        "product": "AirPods Pro",
-        "price": 250,
-        "quantity": 2,
-        "status": "Shipped",
-        "date": "2023-10-02"
-    }
+  {
+    "orderId": 101,
+    "customerName": "John Doe",
+    "product": "iPhone 14",
+    "price": 1100,
+    "quantity": 1,
+    "status": "Confirmed",
+    "date": "2023-10-01"
+  },
+  {
+    "orderId": 102,
+    "customerName": "Jane Smith",
+    "product": "AirPods Pro",
+    "price": 250,
+    "quantity": 2,
+    "status": "Shipped",
+    "date": "2023-10-02"
+  }
 ]

@@ -7,9 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
@@ -21,5 +19,5 @@ root.render(
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
