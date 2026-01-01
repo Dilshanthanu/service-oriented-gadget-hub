@@ -1,0 +1,6 @@
+@samplekala_HostAddress = http://localhost:5157
+
+GET {{samplekala_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

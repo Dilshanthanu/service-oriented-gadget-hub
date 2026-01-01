@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "RAGhsithg2M=",
+  "dgSpecHash": "NZyhCo33WV0=",
   "success": true,
   "projectFilePath": "C:\\coding\\Lms\\service-oriented-gadget-hub\\Backend\\GadgetHub.API\\GadgetHub.API.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\ranat\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.8\\microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
-    "C:\\Users\\ranat\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
