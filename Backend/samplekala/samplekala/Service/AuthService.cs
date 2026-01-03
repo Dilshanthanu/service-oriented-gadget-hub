@@ -3,6 +3,12 @@ using samplekala.DTO;
 using samplekala.Enums;
 using samplekala.Model;
 using samplekala.Repositories;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 
 namespace samplekala.Service
@@ -73,6 +79,25 @@ namespace samplekala.Service
 
             // 3. Return the user (which includes their Role!)
             return user;
+        }
+
+        public string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Your_Very_Long_Secret_Key_Here_12345"));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, user.Role.ToString()) // This puts "Admin" or "Customer" in the token
+    };
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
 

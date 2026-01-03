@@ -46,12 +46,16 @@ namespace samplekala.Controllers
                 return Unauthorized(new { message = "Invalid email or password." });
             }
 
-            // Return useful info to the frontend
+            // 1. Generate the security token
+            var token = _authService.GenerateJwtToken(user);
+
+            // 2. Return a single response object with all necessary data
             return Ok(new
             {
                 message = "Login successful",
+                token = token,
                 email = user.Email,
-                role = user.Role.ToString(), // Tells the frontend if they are "Admin", etc.
+                role = user.Role.ToString(),
                 firstName = user.FirstName
             });
         }

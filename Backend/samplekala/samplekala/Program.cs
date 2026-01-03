@@ -1,8 +1,11 @@
 
-    using Microsoft.EntityFrameworkCore;
-    using samplekala.Data;
-    using samplekala.Repositories;
-    using samplekala.Service;
+using Microsoft.EntityFrameworkCore;
+using samplekala.Data;
+using samplekala.Repositories;
+using samplekala.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
     namespace samplekala
     {
@@ -41,7 +44,31 @@
                     });
             });
             builder.Services.AddDbContext<AppDbContext>(options =>
-                    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+            // Add this in Program.cs
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ProductService>();
+
+
+
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false, // Set to true in production
+        ValidateAudience = false, // Set to true in production
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Your_Very_Long_Secret_Key_Here_12345"))
+    };
+});
 
                 var app = builder.Build();
 
@@ -52,7 +79,14 @@
                     app.UseSwaggerUI();
                 }
 
-                app.UseHttpsRedirection();
+
+            app.UseAuthentication(); // Who are you?
+            app.UseAuthorization();  // Are you allowed to be here?
+
+            app.MapControllers();
+            app.Run();
+
+            app.UseHttpsRedirection();
 
             app.UseCors("AllowFrontend");
 
