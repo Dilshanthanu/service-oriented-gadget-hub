@@ -12,8 +12,8 @@ using samplekala.Data;
 namespace samplekala.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260102195528_InitialProductCreate")]
-    partial class InitialProductCreate
+    [Migration("20260103093235_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,30 @@ namespace samplekala.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("samplekala.Model.CartItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("CartItems");
+                });
 
             modelBuilder.Entity("samplekala.Model.Product", b =>
                 {
@@ -95,6 +119,17 @@ namespace samplekala.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("samplekala.Model.CartItem", b =>
+                {
+                    b.HasOne("samplekala.Model.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }
