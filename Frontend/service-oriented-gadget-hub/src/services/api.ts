@@ -2,6 +2,8 @@ import productsData from '../data/products.json';
 import distributorsData from '../data/distributors.json';
 import ordersData from '../data/orders.json';
 import usersData from '../data/users.json';
+import axiosInstance from '../utils/axiosInstance';
+import { appURLs } from '../utils/urls';
 
 export type Role = 'customer' | 'admin' | 'distributor';
 
@@ -40,28 +42,24 @@ export interface LoginCredentials {
 // Mock delay to simulate network latency
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// --- Auth Services ---
-
 export const login = async (credentials: LoginCredentials): Promise<User> => {
-  await delay(800);
+  try {
+    const response = await axiosInstance.post<User>(`${appURLs.web}/login`, {
+      email: credentials.email,
+      password: credentials.password,
+    });
 
-  // Find user by email OR username
-  const user = usersData.find(
-    (u) =>
-      (u.email === credentials.email || u.username === credentials.email) && // flexible login
-      u.password === credentials.password,
-  ) as User | undefined;
+    const user = response.data;
 
-  if (!user) {
-    throw new Error('Invalid credentials');
+    if (credentials.role && user.role !== credentials.role) {
+      throw new Error(`Access denied. You are not a ${credentials.role}.`);
+    }
+
+    return user;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Invalid credentials';
+    throw new Error(message);
   }
-
-  // Optional: Check if role matches if provided
-  if (credentials.role && user.role !== credentials.role) {
-    throw new Error(`Access denied. You are not a ${credentials.role}.`);
-  }
-
-  return user;
 };
 
 export const loginWithGoogle = async (): Promise<User> => {

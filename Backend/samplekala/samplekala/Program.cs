@@ -1,54 +1,64 @@
 
-using Microsoft.EntityFrameworkCore;
-using samplekala.Data;
-using samplekala.Repositories;
-using samplekala.Service;
+    using Microsoft.EntityFrameworkCore;
+    using samplekala.Data;
+    using samplekala.Repositories;
+    using samplekala.Service;
 
-namespace samplekala
-{
-    public class Program
+    namespace samplekala
     {
-        public static void Main(string[] args)
+        public class Program
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            // 1. Register the Repository
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-            // 2. Register the Service
-            builder.Services.AddScoped<AuthService>();
-
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<AuthService>();
-
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            public static void Main(string[] args)
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                var builder = WebApplication.CreateBuilder(args);
 
-            app.UseHttpsRedirection();
+                // Add services to the container.
 
-            app.UseAuthorization();
+                builder.Services.AddControllers();
+                // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen();
+                // 1. Register the Repository
+                builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+                // 2. Register the Service
+                builder.Services.AddScoped<AuthService>();
+
+                builder.Services.AddScoped<IUserRepository, UserRepository>();
+                builder.Services.AddScoped<AuthService>();
+
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy
+                            .AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
+            });
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+                var app = builder.Build();
+
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
+
+                app.UseHttpsRedirection();
+
+            app.UseCors("AllowFrontend");
 
             app.MapControllers();
 
-            app.Run();
+                app.Run();
+            }
         }
     }
-}

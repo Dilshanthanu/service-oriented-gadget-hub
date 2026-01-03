@@ -5,7 +5,8 @@ import { Role } from '../../services/api';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../components/Card';
-import { LogIn, User } from 'lucide-react';
+import { LogIn } from 'lucide-react';
+import axiosInstance from '../../utils/axiosInstance';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,8 +23,14 @@ export const Login: React.FC = () => {
     setError('');
 
     try {
-      await login({ email, password, role });
-      redirectUser(role);
+      const body = {
+        email: email,
+        password: password,
+      };
+      const res = await axiosInstance.post('/login', body);
+
+      redirectUser(res.data.role);
+      setRole(res.data.role as Role);
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
@@ -60,26 +67,6 @@ export const Login: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className='space-y-4'>
-            <div className='space-y-2'>
-              <label className='text-sm font-medium'>Select Role</label>
-              <div className='flex p-1 bg-slate-100 dark:bg-slate-800 rounded-lg'>
-                {(['customer', 'distributor', 'admin'] as Role[]).map((r) => (
-                  <button
-                    key={r}
-                    type='button'
-                    onClick={() => setRole(r)}
-                    className={`flex-1 capitalize text-sm py-1.5 rounded-md transition-all ${
-                      role === r
-                        ? 'bg-white dark:bg-slate-700 shadow text-slate-900 dark:text-white font-semibold'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <Input
               label='Email or Username'
               type='text'
@@ -97,13 +84,6 @@ export const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
-            <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-xs text-blue-800 dark:text-blue-300'>
-              <p className='font-semibold mb-1'>Demo Credentials:</p>
-              <p>Customer: customer@test.com / 123</p>
-              <p>Admin: admin@test.com / admin123</p>
-              <p>Distributor: tw@test.com / dist123</p>
-            </div>
 
             {error && <p className='text-sm text-red-500 text-center'>{error}</p>}
 
