@@ -9,6 +9,7 @@ import { cn } from './Button';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
+  console.log('[Navbar] Current User:', user);
   const { theme, toggleTheme } = useTheme();
   const { cartItems } = useCart();
   const navigate = useNavigate();
@@ -96,9 +97,7 @@ export const Navbar: React.FC = () => {
 
             {user ? (
               <div className='flex items-center gap-2 ml-2'>
-                <span className='hidden sm:inline-block text-sm font-medium text-slate-700 dark:text-slate-300'>
-                  {user.name}
-                </span>
+
                 <Link to='/profile'>
                   <Button variant='ghost' size='sm' title='Profile'>
                     <UserIcon className='w-4 h-4' />

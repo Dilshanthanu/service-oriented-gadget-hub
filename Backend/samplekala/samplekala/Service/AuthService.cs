@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.IdentityModel.Tokens;
 using samplekala.DTO;
 using samplekala.Enums;
 using samplekala.Model;
 using samplekala.Repositories;
-
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace samplekala.Service
 {
@@ -16,7 +18,6 @@ namespace samplekala.Service
             _userRepository = userRepository;
         }
 
-        // Best Practice: The Service assigns the role based on the specific method called
         public async Task<string> RegisterCustomer(CustomerRegisterDTO request)
         {
             var user = new User
@@ -25,8 +26,9 @@ namespace samplekala.Service
                 LastName = request.LastName,
                 Email = request.Email,
                 Password = request.Password,
-                Role = UserRole.Customer // Assigned here by the system
+                Role = UserRole.Customer
             };
+
             await _userRepository.AddUser(user);
             return "Customer registration successful";
         }
@@ -40,8 +42,9 @@ namespace samplekala.Service
                 Email = request.Email,
                 Password = request.Password,
                 CompanyName = request.CompanyName,
-                Role = UserRole.Distributor // Assigned here by the system
+                Role = UserRole.Distributor
             };
+
             await _userRepository.AddUser(user);
             return "Distributor registration successful";
         }
@@ -54,27 +57,50 @@ namespace samplekala.Service
                 LastName = request.UserName,
                 Email = request.Email,
                 Password = request.Password,
-                Role = UserRole.Admin // Assigned here by the system
+                Role = UserRole.Admin
             };
+
             await _userRepository.AddUser(user);
             return "Admin registration successful";
         }
 
         public async Task<User?> Login(LoginDTO request)
         {
-            // 1. Find the user by email
             var user = await _userRepository.GetUserByEmail(request.Email);
 
-            // 2. Check if user exists and password matches
             if (user == null || user.Password != request.Password)
-            {
-                return null; // Login failed
-            }
+                return null;
 
-            // 3. Return the user (which includes their Role!)
             return user;
         }
 
+        // ✅ NEW STAFF METHOD
+        public async Task<List<User>> GetStaffUsers()
+        {
+            return await _userRepository.GetStaffUsers();
+        }
 
+        public string GenerateJwtToken(User user)
+        {
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes("Your_Very_Long_Secret_Key_Here_12345")
+            );
+
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }

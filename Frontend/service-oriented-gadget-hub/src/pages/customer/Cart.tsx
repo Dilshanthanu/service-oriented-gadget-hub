@@ -29,7 +29,7 @@ export const Cart: React.FC = () => {
           {cartItems.map((item) => (
             <Card key={item.id} className='flex gap-4 p-4 items-center'>
               <div className='w-24 h-24 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0'>
-                <img src={item.image} alt={item.name} className='w-full h-full object-cover' />
+                <img src={item.imageUrl} alt={item.name} className='w-full h-full object-cover' />
               </div>
               <div className='flex-1'>
                 <h3 className='font-semibold text-lg'>{item.name}</h3>
