@@ -30,10 +30,16 @@ namespace samplekala
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<ProductService>();
 
-            // Database
+                builder.Services.AddScoped<IUserRepository, UserRepository>();
+                builder.Services.AddScoped<AuthService>();
+
+            // Register Repositories
+            builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
+
+            // Register Services
+            builder.Services.AddScoped<QuotationService>();
+
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
             // CORS
             builder.Services.AddCors(options =>

@@ -1,0 +1,16 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace samplekala.Model
+{
+    [Table("OrderItems")]
+    public class OrderItem
+    {
+        public int Id { get; set; }
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; } // The final negotiated price from the quote
+
+        public Product Product { get; set; }
+    }
+}
