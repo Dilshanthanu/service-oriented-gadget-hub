@@ -40,7 +40,7 @@ export const ProductDetails: React.FC = () => {
         {/* Image Section */}
         <div className='aspect-square rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-xl'>
           <img
-            src={product.image}
+            src={product.imageUrl}
             alt={product.name}
             className='w-full h-full object-cover hover:scale-105 transition-transform duration-500'
           />

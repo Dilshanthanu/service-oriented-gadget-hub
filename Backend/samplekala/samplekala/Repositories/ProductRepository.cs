@@ -34,10 +34,19 @@ namespace samplekala.Repositories
             throw new NotImplementedException();
         }
 
-        public Task DeleteProduct(int id)
+        public async Task DeleteProduct(int id)
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.FindAsync(id);
+
+            if (product == null)
+            {
+                throw new KeyNotFoundException("Product not found");
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
         }
+
 
         public Task<bool> SaveChanges()
         {

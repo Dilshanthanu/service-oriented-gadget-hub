@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Role } from '../../services/api';
@@ -7,6 +7,7 @@ import { Input } from '../../components/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../components/Card';
 import { LogIn } from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
+import { API_ENDPOINTS } from '../../utils/urls';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -23,20 +24,37 @@ export const Login: React.FC = () => {
     setError('');
 
     try {
-      const body = {
-        email: email,
-        password: password,
-      };
-      const res = await axiosInstance.post('/login', body);
+      const res = await axiosInstance.post(API_ENDPOINTS.LOGIN, {
+        email,
+        password,
+      });
 
-      redirectUser(res.data.role);
-      setRole(res.data.role as Role);
+      const { token, role } = res.data;
+
+      if (!token || !role) {
+        throw new Error('Invalid login response');
+      }
+
+      // ✅ Normalize role
+      const normalizedRole = role.toLowerCase() as Role;
+
+      // ✅ Persist auth info
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', normalizedRole);
+
+      // ✅ Navigate based on role
+      redirectUser(normalizedRole);
     } catch (err: any) {
-      setError(err.message || 'Failed to login');
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const savedRole = localStorage.getItem('role') as Role | null;
+    if (savedRole) setRole(savedRole);
+  }, []);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -49,11 +67,21 @@ export const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   const redirectUser = (userRole: Role) => {
-    if (userRole === 'admin') navigate('/admin');
-    else if (userRole === 'distributor') navigate('/distributor');
-    else navigate('/');
+    switch (userRole) {
+      case 'admin':
+        navigate('/admin', { replace: true });
+        break;
+      case 'distributor':
+        navigate('/distributor', { replace: true });
+        break;
+      default:
+        navigate('/', { replace: true });
+    }
+  };
+
+  const normalizeRole = (role: string): Role => {
+    return role.toLowerCase() as Role;
   };
 
   return (

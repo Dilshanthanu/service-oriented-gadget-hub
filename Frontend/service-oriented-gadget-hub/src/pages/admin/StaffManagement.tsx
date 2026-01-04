@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, createUser, updateUser, deleteUser, User, Role } from '../../services/api';
+import { getUsers, deleteUser, User, Role } from '../../services/api';
+import { authService } from '../../services/authService';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Card, CardContent } from '../../components/Card';
-import { UserPlus, Shield, Trash2, RefreshCw, X, Search } from 'lucide-react';
+import { UserPlus, Trash2, RefreshCw, X, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const StaffManagement: React.FC = () => {
@@ -16,31 +17,52 @@ export const StaffManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '', // In real app, might auto-generate or send invite
+    password: '', 
+    companyName: '',
     role: 'distributor' as Role,
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+   useEffect(() => {
+  fetchUsers();
+}, []);
 
-  const fetchUsers = async () => {
+const fetchUsers = async () => {
+  try {
     const data = await getUsers();
     setUsers(data);
-  };
+  } catch (error) {
+    console.error(error);
+    alert('Failed to load staff users');
+  }
+};
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const newUser = await createUser({
-        ...formData,
-        username: formData.email.split('@')[0],
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}`,
-      });
+      let newUser: User;
+      
+      if (formData.role === 'admin') {
+         newUser = await authService.registerAdmin({
+            userName: formData.name, // Mapping Full Name to UserName
+            email: formData.email,
+            password: formData.password
+         });
+      } else {
+         newUser = await authService.registerDistributor({
+            fullName: formData.name,
+            email: formData.email,
+            password: formData.password,
+            companyName: formData.companyName || 'GadgetHub Partner' // Fallback if empty, but we'll adding input
+         });
+      }
+
+      // Add to local list to show immediate feedback (real app would re-fetch if endpoint exists)
       setUsers((prev) => [...prev, newUser]);
+      alert(`${formData.role === 'admin' ? 'Admin' : 'Distributor'} created successfully!`);
       closeModal();
-    } catch (error) {
-      alert('Failed to create user');
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message || 'Failed to create user');
     }
   };
 
@@ -57,7 +79,7 @@ export const StaffManagement: React.FC = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ name: '', email: '', password: '', role: 'distributor' });
+    setFormData({ name: '', email: '', password: '', companyName: '', role: 'distributor' });
   };
 
   const filteredUsers = users.filter(
@@ -65,6 +87,7 @@ export const StaffManagement: React.FC = () => {
       u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
 
   return (
     <div className='space-y-6 animate-fade-in'>
@@ -190,11 +213,21 @@ export const StaffManagement: React.FC = () => {
                 </div>
 
                 <Input
-                  label='Full Name'
+                  label={formData.role === 'admin' ? 'Username' : 'Full Name'}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
+                
+                {formData.role === 'distributor' && (
+                  <Input
+                    label='Company Name'
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    required
+                  />
+                )}
+
                 <Input
                   label='Email'
                   type='email'

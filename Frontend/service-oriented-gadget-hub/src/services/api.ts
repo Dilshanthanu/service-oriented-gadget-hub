@@ -20,10 +20,11 @@ export interface User {
 export interface Product {
   id: number;
   name: string;
+  description: string;
   price: number;
-  stock: number;
-  image: string;
+  stockQuantity: number;
   category: string;
+  imageUrl: string;
 }
 
 export interface Distributor {
@@ -96,11 +97,9 @@ export const registerCustomer = async (data: {
   return newUser;
 };
 
-// --- User Management Services (Admin) ---
-
 export const getUsers = async (): Promise<User[]> => {
-  await delay(500);
-  return usersData as User[];
+  const response = await axiosInstance.get('/Auth/staff');
+  return response.data;
 };
 
 export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
@@ -128,13 +127,23 @@ export const deleteUser = async (id: string): Promise<void> => {
 // --- Product & Order Services ---
 
 export const getProducts = async (): Promise<Product[]> => {
-  await delay(500);
-  return productsData;
+  try {
+    const response = await axiosInstance.get<Product[]>('/Product');
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Failed to fetch products';
+    throw new Error(message);
+  }
 };
 
-export const getProductById = async (id: number): Promise<Product | undefined> => {
-  await delay(300);
-  return productsData.find((p) => p.id === id);
+export const getProductById = async (id: number): Promise<Product> => {
+  try {
+    const response = await axiosInstance.get<Product>(`/Product/${id}`);
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Failed to fetch product';
+    throw new Error(message);
+  }
 };
 
 export const getOrders = async (): Promise<any[]> => {

@@ -64,5 +64,23 @@ namespace samplekala.Controllers
 
 
         }
+
+        [HttpGet("staff")]
+        public async Task<IActionResult> GetStaffUsers()
+        {
+            var users = await _authService.GetStaffUsers();
+
+            var response = users.Select(u => new
+            {
+                id = u.Id,
+                name = $"{u.FirstName} {u.LastName}",
+                email = u.Email,
+                role = u.Role.ToString().ToLower(),
+                avatar = "https://ui-avatars.com/api/?name=" + u.FirstName
+            });
+
+            return Ok(response);
+        }
+
     }
 }

@@ -17,7 +17,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Card className='overflow-hidden group flex flex-col h-full hover:shadow-xl transition-shadow duration-300'>
       <div className='relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800'>
         <img
-          src={product.image}
+          src={product.imageUrl}
           alt={product.name}
           className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
         />
@@ -47,7 +47,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className='mt-2 flex items-center justify-between'>
           <p className='text-xl font-bold text-primary-600'>${product.price.toLocaleString()}</p>
           <p className='text-sm text-slate-500'>
-            {product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock'}
+            {product.stockQuantity > 0 ? `${product.stockQuantity} in stock` : 'Out of Stock'}
           </p>
         </div>
       </CardContent>

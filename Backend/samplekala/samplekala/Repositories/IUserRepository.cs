@@ -6,8 +6,9 @@ namespace samplekala.Repositories
     {
         Task<bool> UserExists(string email);
         Task<User> AddUser(User user);
+        Task<User?> GetUserByEmail(string email);
 
-        Task<User?> GetUserByEmail(string email); // ADD THIS LINE
-       
+        // ✅ ADD THIS
+        Task<List<User>> GetStaffUsers();
     }
 }

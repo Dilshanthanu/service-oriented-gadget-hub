@@ -10,6 +10,9 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   const { user, isLoading } = useAuth();
 
+  const token = localStorage.getItem('token');
+  const storedRole = localStorage.getItem('role') as Role | null;
+
   if (isLoading) {
     return (
       <div className='flex items-center justify-center min-h-[50vh]'>
@@ -18,12 +21,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) 
     );
   }
 
-  if (!user) {
+  if (!token) {
     return <Navigate to='/login' replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to='/unauthorized' replace />; // Or home
+  const effectiveRole = user?.role ?? storedRole;
+
+  if (!effectiveRole) {
+    return <Navigate to='/login' replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(effectiveRole)) {
+    return <Navigate to='/unauthorized' replace />;
   }
 
   return <Outlet />;
