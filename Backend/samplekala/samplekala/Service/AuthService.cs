@@ -68,6 +68,11 @@ namespace samplekala.Service
             return "Admin registration successful";
         }
 
+        public async Task<List<User>> GetStaffUsers()
+        {
+            return await _userRepository.GetStaffUsers();
+        }
+
         public async Task<User?> Login(LoginDTO request)
         {
             var user = await _userRepository.GetUserByEmail(request.Email);
@@ -96,6 +101,7 @@ namespace samplekala.Service
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
 
     }

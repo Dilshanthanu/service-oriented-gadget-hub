@@ -68,7 +68,7 @@ const ProductManager: React.FC = () => {
         imageUrl: ''
       });
     } catch (err: any) {
-    } catch (err: any) {
+
       console.error("Create Product Failed:", err);
       // Log full response details for debugging
       if (err.response) {
