@@ -6,15 +6,20 @@ import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../../components/Card';
 import { UserPlus } from 'lucide-react';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_ENDPOINTS } from '../../utils/urls';
 
 export const Register: React.FC = () => {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const fullName = `${firstName} ${lastName}`.trim();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +27,15 @@ export const Register: React.FC = () => {
     setError('');
 
     try {
-      await registerCustomer({ email, name, password });
-      // Auto login after register
+      const body = {
+        firstName: firstName,
+        lastName: lastName,
+        fullName: fullName,
+        email: email,
+        password: password,
+      };
+      const res = await axiosInstance.post(API_ENDPOINTS.CUSTOMER_REGISTER, body);
+
       await login({ email, password, role: 'customer' });
       navigate('/');
     } catch (err: any) {
@@ -45,12 +57,23 @@ export const Register: React.FC = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className='space-y-4'>
             <Input
-              label='Full Name'
-              placeholder='John Doe'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              label='First Name'
+              placeholder='John'
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               required
             />
+
+            <Input
+              label='Last Name'
+              placeholder='Doe'
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              required
+            />
+
+            <Input label='Full Name' placeholder='John Doe' value={fullName} disabled />
+
             <Input
               label='Email'
               type='email'
@@ -59,6 +82,7 @@ export const Register: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+
             <Input
               label='Password'
               type='password'
