@@ -30,7 +30,13 @@ using System.Text;
                 builder.Services.AddScoped<IUserRepository, UserRepository>();
                 builder.Services.AddScoped<AuthService>();
 
-                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            // Register Repositories
+            builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
+
+            // Register Services
+            builder.Services.AddScoped<QuotationService>();
+
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
             builder.Services.AddCors(options =>
             {

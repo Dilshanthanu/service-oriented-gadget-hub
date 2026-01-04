@@ -89,8 +89,12 @@ namespace samplekala.Service
             var claims = new[]
             {
         new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role.ToString()) // This puts "Admin" or "Customer" in the token
-    };
+        new Claim(ClaimTypes.Role, user.Role.ToString()), // This puts "Admin" or "Customer" in the token
+        new Claim("id", user.Id.ToString()), // IMPORTANT: The Controller looks for this
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Standard backup
+        new Claim(ClaimTypes.GivenName, user.FirstName)
+    
+        };
 
             var token = new JwtSecurityToken(
                 claims: claims,

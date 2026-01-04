@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using samplekala.DTO;
 using samplekala.Service;
+using System.Security.Claims;
 
 namespace samplekala.Controllers
 {
@@ -58,6 +59,10 @@ namespace samplekala.Controllers
                 role = user.Role.ToString(),
                 firstName = user.FirstName
             });
+
+            
+
+
         }
     }
 }
