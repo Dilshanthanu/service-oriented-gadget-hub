@@ -32,7 +32,8 @@ namespace samplekala.Service
                 Price = dto.Price,
                 StockQuantity = dto.StockQuantity,
                 Category = dto.Category,
-                ImageUrl = "default-gadget.png" // We can update this later with actual upload logic
+                ImageUrl = "default-gadget.png", // We can update this later with actual upload logic
+                DistributorId = dto.DistributorId
             };
 
             await _productRepository.AddProduct(product);
