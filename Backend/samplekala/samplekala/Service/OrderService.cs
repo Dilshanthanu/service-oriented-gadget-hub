@@ -1,6 +1,7 @@
-﻿using samplekala.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using samplekala.Data;
+using samplekala.DTO;
 using samplekala.Model;
-using Microsoft.EntityFrameworkCore;
 
 namespace samplekala.Service
 {
@@ -15,52 +16,104 @@ namespace samplekala.Service
 
         public async Task<Order> PlaceOrderFromQuotation(int quotationId, int userId)
         {
-            // 1. Fetch the quotation with its items
-            var quote = await _context.Quotations
-                .Include(q => q.Items)
-                .FirstOrDefaultAsync(q => q.Id == quotationId && q.CustomerId == userId);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (quote == null) throw new Exception("Quotation not found.");
-            if (quote.Status != QuotationStatus.Approved) throw new Exception("Quotation is not approved yet.");
-
-            // 2. Create the Order object
-            var order = new Order
+            try
             {
-                CustomerId = userId,
-                OrderDate = DateTime.Now,
-                FromQuotationId = quote.Id,
-                TotalAmount = quote.Items.Sum(i => i.Quantity * i.OfferedUnitPrice),
-                OrderItems = quote.Items.Select(i => new OrderItem
+                var quote = await _context.Quotations
+                    .Include(q => q.Items)
+                    .FirstOrDefaultAsync(q => q.Id == quotationId && q.CustomerId == userId);
+
+                if (quote == null)
+                    throw new Exception("Quotation not found.");
+
+                if (quote.Status != QuotationStatus.Approved)
+                    throw new Exception("Quotation is not approved.");
+
+                var order = new Order
                 {
+                    CustomerId = userId,
+                    OrderDate = DateTime.Now,
+                    FromQuotationId = quote.Id,
+                    Status = "Processing",
+                    TotalAmount = quote.Items.Sum(i => i.Quantity * i.OfferedUnitPrice)
+                };
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync(); // 🔑 generates Order.Id
+
+                var orderItems = quote.Items.Select(i => new OrderItem
+                {
+                    OrderId = order.Id,            // ✅ FIX
                     ProductId = i.ProductId,
                     Quantity = i.Quantity,
                     UnitPrice = i.OfferedUnitPrice
-                }).ToList()
-            };
+                }).ToList();
 
-            // 3. Save Order and Update Quotation Status
-            _context.Orders.Add(order);
-            quote.Status = QuotationStatus.ConvertedToOrder;
+                _context.OrderItems.AddRange(orderItems);
 
-            await _context.SaveChangesAsync();
-            return order;
+                quote.Status = QuotationStatus.ConvertedToOrder;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return order;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
-        public async Task<List<Order>> GetAllOrders()
+        public async Task<List<OrderDto>> GetAllOrdersDto()
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.OrderDate)
+                .Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    FromQuotationId = o.FromQuotationId,
+                    Items = o.OrderItems.Select(oi => new OrderItemDto
+                    {
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice
+                    }).ToList()
+                })
                 .ToListAsync();
         }
 
-        public async Task<Order?> GetOrderById(int id)
+        public async Task<OrderDto?> GetOrderByIdDto(int id)
         {
             return await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Product)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                    .ThenInclude(oi => oi.Product)
+                .Where(o => o.Id == id)
+                .Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    FromQuotationId = o.FromQuotationId,
+                    Items = o.OrderItems.Select(oi => new OrderItemDto
+                    {
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
         }
+
 
         public async Task UpdateOrderStatus(int id, string newStatus)
         {
@@ -79,5 +132,32 @@ namespace samplekala.Service
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<OrderDto>> GetOrdersByCustomer(int customerId)
+        {
+            return await _context.Orders
+                .Where(o => o.CustomerId == customerId)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .OrderByDescending(o => o.OrderDate)
+                .Select(o => new OrderDto
+                {
+                    Id = o.Id,
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    FromQuotationId = o.FromQuotationId,
+                    Items = o.OrderItems.Select(oi => new OrderItemDto
+                    {
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product.Name,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice
+                    }).ToList()
+                })
+                .ToListAsync();
+        }
+
+
     }
 }

@@ -1,6 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 import { Product } from '../services/api';
 import { cartService } from '../services/cartService';
+import { useAlert } from './AlertContext';
+import { useAuth } from './AuthContext';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -18,16 +26,26 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert();
+  const { user } = useAuth(); // ✅ Use AuthContext directly
 
-  // 🔑 ALWAYS normalize backend response
+  const isFetchingRef = useRef(false);
+
+  // 🛒 Fetch cart safely
   const fetchCart = async () => {
-    try {
-      setLoading(true);
-      const response = await cartService.getCart();
+    if (!user) return; // ✅ Check user existence
+    if (isFetchingRef.current) return;
 
+    try {
+      isFetchingRef.current = true;
+      setLoading(true);
+
+      const response = await cartService.getCart();
       const items: CartItem[] = Array.isArray(response)
         ? response
         : response?.items ?? [];
@@ -37,64 +55,70 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to fetch cart', error);
       setCartItems([]);
     } finally {
+      isFetchingRef.current = false;
       setLoading(false);
     }
   };
 
+  // ✅ React to user changes
   useEffect(() => {
-    fetchCart();
-  }, []);
+    if (user) {
+      fetchCart();
+    } else {
+      setCartItems([]); // Clear cart on logout
+    }
+  }, [user]); // ✅ Depend on stable user object from AuthContext
 
   const addToCart = async (product: Product, quantity = 1) => {
+    if (!user) {
+      showAlert('Please login to add items to cart', 'warning');
+      return;
+    }
+
     try {
       await cartService.addToCart(product.id, quantity);
       await fetchCart();
-    } catch (error) {
-      console.error('Failed to add to cart', error);
-      alert('Failed to add to cart');
+    } catch {
+      showAlert('Failed to add to cart', 'error');
     }
   };
 
   const removeFromCart = async (productId: number) => {
+    if (!user) return;
+
     try {
       await cartService.removeFromCart(productId);
-      setCartItems(prev => prev.filter(item => item.id !== productId));
-    } catch (error) {
-      console.error('Failed to remove item', error);
-      alert('Failed to remove item');
+      setCartItems(prev => prev.filter(i => i.id !== productId));
+    } catch {
+      showAlert('Failed to remove item', 'error');
     }
   };
 
   const updateQuantity = async (productId: number, quantity: number) => {
-    const currentItem = cartItems.find(i => i.id === productId);
-    if (!currentItem) return;
+    if (!user) return;
 
-    const delta = quantity - currentItem.quantity;
+    const item = cartItems.find(i => i.id === productId);
+    if (!item) return;
 
-    if (delta > 0) {
-      await addToCart(currentItem, delta);
-    } else if (delta < 0) {
-      if (quantity <= 0) {
-        await removeFromCart(productId);
-      } else {
-        console.warn('Backend does not support decrement update directly.');
-      }
-    }
+    const delta = quantity - item.quantity;
+    if (delta > 0) await addToCart(item, delta);
+    else if (quantity <= 0) await removeFromCart(productId);
   };
 
   const clearCart = async () => {
-    try {
-      await cartService.clearCart();
+    if (!user) {
       setCartItems([]);
-    } catch (error) {
-      console.error('Failed to clear cart', error);
+      return;
     }
+
+    await cartService.clearCart();
+    setCartItems([]);
   };
 
-  // 🛡️ SAFE reduce
-  const total = Array.isArray(cartItems)
-    ? cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    : 0;
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider
@@ -105,7 +129,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateQuantity,
         clearCart,
         total,
-        loading
+        loading,
       }}
     >
       {children}

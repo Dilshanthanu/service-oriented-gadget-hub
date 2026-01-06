@@ -6,9 +6,11 @@ import { Input } from '../../components/Input';
 import { Card, CardContent } from '../../components/Card';
 import { UserPlus, Trash2, RefreshCw, X, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 
 export const StaffManagement: React.FC = () => {
   const { user: currentUser } = useAuth();
+  const { showAlert } = useAlert();
   const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +34,7 @@ const fetchUsers = async () => {
     setUsers(data);
   } catch (error) {
     console.error(error);
-    alert('Failed to load staff users');
+    showAlert('Failed to load staff users', 'error');
   }
 };
 
@@ -58,17 +60,17 @@ const fetchUsers = async () => {
 
       // Add to local list to show immediate feedback (real app would re-fetch if endpoint exists)
       setUsers((prev) => [...prev, newUser]);
-      alert(`${formData.role === 'admin' ? 'Admin' : 'Distributor'} created successfully!`);
+      showAlert(`${formData.role === 'admin' ? 'Admin' : 'Distributor'} created successfully!`, 'success');
       closeModal();
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.message || 'Failed to create user');
+      showAlert(error.response?.data?.message || 'Failed to create user', 'error');
     }
   };
 
   const handleDelete = async (userId: string) => {
     if (userId === currentUser?.id) {
-      alert('You cannot delete yourself.');
+      showAlert('You cannot delete yourself.', 'warning');
       return;
     }
     if (window.confirm('Are you sure you want to delete this user?')) {
@@ -152,7 +154,7 @@ const fetchUsers = async () => {
                     size='sm'
                     variant='ghost'
                     title='Reset Password'
-                    onClick={() => alert('Password reset link sent (Mock)')}
+                    onClick={() => showAlert('Password reset link sent (Mock)', 'info')}
                   >
                     <RefreshCw className='w-4 h-4 text-slate-400 hover:text-blue-500' />
                   </Button>

@@ -18,34 +18,20 @@ export const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const res = await axiosInstance.post(API_ENDPOINTS.LOGIN, {
-        email,
-        password,
-      });
+      // ✅ THIS updates AuthContext.user
+      const user = await login({ email, password });
 
-      const { token, role } = res.data;
-
-      if (!token || !role) {
-        throw new Error('Invalid login response');
-      }
-
-      // ✅ Normalize role
-      const normalizedRole = role.toLowerCase() as Role;
-
-      // ✅ Persist auth info
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', normalizedRole);
-
-      // ✅ Navigate based on role
-      redirectUser(normalizedRole);
+      // ✅ Navigate AFTER context update
+      redirectUser(user.role);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }

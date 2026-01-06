@@ -69,11 +69,8 @@ export const ProductDetails: React.FC = () => {
             <Button size='lg' className='flex-1 text-lg' onClick={() => addToCart(product)}>
               <ShoppingCart className='w-5 h-5 mr-2' /> Add to Cart
             </Button>
-            <Link to='/request-quote' className='flex-1'>
-              <Button size='lg' variant='secondary' className='w-full'>
-                Request Quotation
-              </Button>
-            </Link>
+           
+
           </div>
 
           {/* Features Grid */}

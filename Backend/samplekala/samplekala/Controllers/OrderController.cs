@@ -33,11 +33,12 @@ namespace samplekala.Controllers
         }
 
         // 1. GET ALL ORDERS (Admin Only)
+        // 1. GET ALL ORDERS (Admin Only)
         [Authorize(Roles = "Admin")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
-            var orders = await _orderService.GetAllOrders();
+            var orders = await _orderService.GetAllOrdersDto();
             return Ok(orders);
         }
 
@@ -45,10 +46,11 @@ namespace samplekala.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var order = await _orderService.GetOrderById(id);
+            var order = await _orderService.GetOrderByIdDto(id);
             if (order == null) return NotFound();
             return Ok(order);
         }
+
 
         // 3. UPDATE ORDER STATUS (Admin/Distributor)
         [Authorize(Roles = "Admin,Distributor")]
@@ -80,6 +82,16 @@ namespace samplekala.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            var userId = int.Parse(User.FindFirst("id")?.Value);
+
+            var orders = await _orderService.GetOrdersByCustomer(userId);
+
+            return Ok(orders);
         }
     }   
 }

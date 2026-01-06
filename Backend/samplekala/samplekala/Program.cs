@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using samplekala.Data;
@@ -15,67 +15,79 @@ namespace samplekala
             var builder = WebApplication.CreateBuilder(args);
 
             // ========================
-            // Services
+            // Core services
             // ========================
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+
+            // ========================
+            // Database (🔥 THIS WAS MISSING)
+            // ========================
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    ServerVersion.AutoDetect(
+                        builder.Configuration.GetConnectionString("DefaultConnection")
+                    )
+                )
+            );
+
+            // ========================
             // Repositories
+            // ========================
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
-            // Services
-            builder.Services.AddScoped<AuthService>();
-            builder.Services.AddScoped<ProductService>();
-
-                builder.Services.AddScoped<IUserRepository, UserRepository>();
-                builder.Services.AddScoped<AuthService>();
-
-            // Register Repositories
             builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
 
-            // Register Services
+            // ========================
+            // Services
+            // ========================
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<ProductService>();
             builder.Services.AddScoped<QuotationService>();
+            builder.Services.AddScoped<OrderService>();
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+            // ========================
             // CORS
+            // ========================
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy
-                        .AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
                 });
             });
 
+            // ========================
+            // JWT Authentication
+            // ========================
             builder.Services
-       .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-       .AddJwtBearer(options =>
-       {
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateIssuer = false,
-               ValidateAudience = false,
-               ValidateLifetime = true,
-               ValidateIssuerSigningKey = true,
-               IssuerSigningKey = new SymmetricSecurityKey(
-                   Encoding.UTF8.GetBytes("Your_Very_Long_Secret_Key_Here_12345")
-               )
-           };
-       });
-
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes("Your_Very_Long_Secret_Key_Here_12345")
+                        )
+                    };
+                });
 
             var app = builder.Build();
 
             // ========================
-            // Middleware Pipeline
+            // Middleware
             // ========================
-
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -83,14 +95,12 @@ namespace samplekala
             }
 
             app.UseHttpsRedirection();
-
             app.UseCors("AllowFrontend");
 
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
             app.Run();
         }
     }

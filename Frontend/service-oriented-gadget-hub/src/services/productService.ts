@@ -9,6 +9,7 @@ export interface ProductPayload {
   stockQuantity: number;
   category: string;
   imageUrl: string;
+   distributorId: string;
 }
 
 const PRODUCT_API_URL = '/Product';

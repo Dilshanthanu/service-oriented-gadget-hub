@@ -55,6 +55,7 @@ namespace samplekala.Controllers
             {
                 message = "Login successful",
                 token = token,
+                id = user.Id,
                 email = user.Email,
                 role = user.Role.ToString(),
                 firstName = user.FirstName
