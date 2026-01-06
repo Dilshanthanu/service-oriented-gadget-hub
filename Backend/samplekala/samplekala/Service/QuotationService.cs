@@ -85,6 +85,11 @@ if (cartItems.Any(c => c.Product.DistributorId != distributorId))
         {
             return await _repo.GetByDistributorIdAsync(distributorId);
         }
+        public async Task<List<Quotation>> GetAllPendingQuotations()
+        {
+            return await _repo.GetAllByStatusAsync(QuotationStatus.Pending);
+        }
+
 
         // MOVED INSIDE THE CLASS: Approval logic where distributor sets final prices
         public async Task ApproveAndPriceQuotation(int quoteId, List<samplekala.Controllers.QuotationItemUpdateDto> updates)

@@ -114,7 +114,7 @@ const exportQuotationsToPDF = (quotations: Quotation[]) => {
         'Requested Date',
       ],
     ],
-    body: tableData,
+    body: tableData.map(row => row.map(cell => cell ?? '')),
     styles: {
       fontSize: 9,
       cellPadding: 3,

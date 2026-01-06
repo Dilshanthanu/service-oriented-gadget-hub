@@ -9,5 +9,6 @@ namespace samplekala.Repositories
         Task<List<Quotation>> GetByCustomerIdAsync(int customerId);
         Task<List<Quotation>> GetByDistributorIdAsync(int distributorId);
         Task UpdateStatusAsync(int id, QuotationStatus status);
+        Task<List<Quotation>> GetAllByStatusAsync(QuotationStatus status);
     }
 }

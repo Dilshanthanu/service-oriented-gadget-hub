@@ -89,7 +89,7 @@ export const DistributorResponse: React.FC = () => {
             <div className='text-right'>
               <p className='text-sm text-slate-500'>
                 Expiry Date:{' '}
-                {new Date(quotation.expiryDate).toLocaleString()}
+                {new Date(quotation.expiryDate || Date.now()).toLocaleString()}
               </p>
             </div>
           </div>

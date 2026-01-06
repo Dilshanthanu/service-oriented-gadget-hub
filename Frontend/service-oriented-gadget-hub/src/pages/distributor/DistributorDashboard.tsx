@@ -65,7 +65,7 @@ export const DistributorDashboard: React.FC = () => {
             <div>
               <p className='text-sm font-medium text-slate-500'>Pending Requests</p>
               <h3 className='text-2xl font-bold mt-1'>
-                {requests.filter(r => r.status === QuotationStatus.Pending).length}
+                {requests.filter(r => r.status === 'Pending').length}
               </h3>
             </div>
             <div className='p-3 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/30'>
@@ -79,7 +79,7 @@ export const DistributorDashboard: React.FC = () => {
             <div>
               <p className='text-sm font-medium text-slate-500'>Responded</p>
               <h3 className='text-2xl font-bold mt-1'>
-                {requests.filter(r => r.status === QuotationStatus.Responded).length}
+                {requests.filter(r => r.status === 'Responded').length}
               </h3>
             </div>
             <div className='p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30'>
@@ -93,7 +93,7 @@ export const DistributorDashboard: React.FC = () => {
             <div>
               <p className='text-sm font-medium text-slate-500'>Accepted</p>
               <h3 className='text-2xl font-bold mt-1'>
-                {requests.filter(r => r.status === QuotationStatus.Accepted).length}
+                {requests.filter(r => r.status === 'Accepted').length}
               </h3>
             </div>
             <div className='p-3 rounded-full bg-green-100 text-green-600 dark:bg-green-900/30'>
@@ -136,23 +136,23 @@ export const DistributorDashboard: React.FC = () => {
                       <td className='px-4 py-3'>{req.customerId}</td>
                       <td className='px-4 py-3'>{req.distributorId}</td>
                       <td className='px-4 py-3'>
-                        {new Date(req.expiryDate).toLocaleString()}
+                        {new Date(req.expiryDate || Date.now()).toLocaleString()}
                       </td>
                       <td className='px-4 py-3'>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            req.status === QuotationStatus.Pending
+                            req.status === 'Pending'
                               ? 'bg-orange-100 text-orange-700'
-                              : req.status === QuotationStatus.Responded
+                              : req.status === 'Responded'
                               ? 'bg-blue-100 text-blue-700'
                               : 'bg-green-100 text-green-700'
                           }`}
                         >
-                          {getStatusLabel(req.status)}
+                          {getStatusLabel(req.status as any)}
                         </span>
                       </td>
                       <td className='px-4 py-3'>
-                        LKR {req.grandTotal.toFixed(2)}
+                        LKR {(req.grandTotal ?? 0).toFixed(2)}
                       </td>
 
                       {/* Items */}
@@ -175,7 +175,7 @@ export const DistributorDashboard: React.FC = () => {
 
                       {/* Action */}
                       <td className='px-4 py-3'>
-                        {req.status === QuotationStatus.Pending && (
+                        {req.status === 'Pending' && (
                           <Link
                             to={`/distributor/respond/${req.id}`}
                             state={{ quotation: req }}

@@ -2,6 +2,7 @@ import axiosInstance from '../utils/axiosInstance';
 
 export interface Order {
   id: number;
+  customerId?: number;
   orderDate: string;
   totalAmount: number;
   status: string;
@@ -48,7 +49,7 @@ export const orderService = {
     // API expects string body. Axios sends object as JSON by default.
     // If backend expects raw string "Pending", we set headers.
     await axiosInstance.put(`${ORDER_API_URL}/update-status/${orderId}`, JSON.stringify(status), {
-        headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   },
 

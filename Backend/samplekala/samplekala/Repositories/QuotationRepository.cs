@@ -30,5 +30,12 @@ namespace samplekala.Repositories
             var quote = await _context.Quotations.FindAsync(id);
             if (quote != null) { quote.Status = status; await _context.SaveChangesAsync(); }
         }
+        public async Task<List<Quotation>> GetAllByStatusAsync(QuotationStatus status) =>
+    await _context.Quotations
+        .Where(q => q.Status == status)
+        .Include(q => q.Items)
+            .ThenInclude(i => i.Product)
+        .ToListAsync();
+
     }
-    }
+}

@@ -36,7 +36,7 @@ export const Register: React.FC = () => {
       };
       const res = await axiosInstance.post(API_ENDPOINTS.CUSTOMER_REGISTER, body);
 
-      await login({ email, password, role: 'customer' });
+      await login({ email, password });
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Registration failed');

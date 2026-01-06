@@ -48,7 +48,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       const response = await cartService.getCart();
       const items: CartItem[] = Array.isArray(response)
         ? response
-        : response?.items ?? [];
+        : (response as any)?.items ?? [];
 
       setCartItems(items);
     } catch (error) {
