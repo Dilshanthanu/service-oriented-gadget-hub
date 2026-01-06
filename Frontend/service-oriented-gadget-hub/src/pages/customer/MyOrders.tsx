@@ -15,12 +15,12 @@ export const MyOrders: React.FC = () => {
 
   const loadOrders = async () => {
     try {
-        const data = await orderService.getMyOrders();
-        setOrders(data);
+      const data = await orderService.getMyOrders();
+      setOrders(data);
     } catch (error) {
-        console.error("Failed to load orders", error);
+      console.error("Failed to load orders", error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -35,12 +35,12 @@ export const MyOrders: React.FC = () => {
   };
 
   const getStatusIcon = (status: string) => {
-      switch (status) {
-        case 'Delivered': return <CheckCircle className="w-4 h-4 mr-1"/>;
-        case 'Shipped': return <Truck className="w-4 h-4 mr-1"/>;
-        case 'Cancelled': return <XCircle className="w-4 h-4 mr-1"/>;
-        default: return <Clock className="w-4 h-4 mr-1"/>;
-      }
+    switch (status) {
+      case 'Delivered': return <CheckCircle className="w-4 h-4 mr-1" />;
+      case 'Shipped': return <Truck className="w-4 h-4 mr-1" />;
+      case 'Cancelled': return <XCircle className="w-4 h-4 mr-1" />;
+      default: return <Clock className="w-4 h-4 mr-1" />;
+    }
   };
 
   if (loading) return <div className='p-8 text-center'>Loading orders...</div>;
@@ -53,41 +53,41 @@ export const MyOrders: React.FC = () => {
       </div>
 
       {orders.length === 0 ? (
-          <div className="text-center py-20 bg-slate-50 dark:bg-slate-800 rounded-xl">
-              <Package className="w-12 h-12 mx-auto text-slate-400 mb-4" />
-              <h3 className="text-lg font-semibold">No orders yet</h3>
-              <p className="text-slate-500">Orders created from approved quotations will appear here.</p>
-          </div>
+        <div className="text-center py-20 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <Package className="w-12 h-12 mx-auto text-slate-400 mb-4" />
+          <h3 className="text-lg font-semibold">No orders yet</h3>
+          <p className="text-slate-500">Orders created from approved quotations will appear here.</p>
+        </div>
       ) : (
         <div className='space-y-4'>
-            {orders.map((order) => (
-            <Card key={order.orderId} className='overflow-hidden'>
-                <CardContent className='p-6'>
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex gap-4 items-start">
-                            <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600">
-                                <Package className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg">Order #{order.orderId}</h3>
-                                <p className="text-sm text-slate-500">Placed on {new Date(order.date).toLocaleDateString()}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-6">
-                            <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(order.status)}`}>
-                                {getStatusIcon(order.status)}
-                                {order.status}
-                            </div>
-                            <div className="text-right">
-                                <p className="text-sm text-slate-500">Total Amount</p>
-                                <p className="font-bold text-lg">${order.totalAmount.toLocaleString()}</p>
-                            </div>
-                        </div>
+          {orders.map((order) => (
+            <Card key={order.id} className='overflow-hidden'>
+              <CardContent className='p-6'>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex gap-4 items-start">
+                    <div className="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg text-primary-600">
+                      <Package className="w-6 h-6" />
                     </div>
-                </CardContent>
+                    <div>
+                      <h3 className="font-bold text-lg">Order #{order.id}</h3>
+                      <p className="text-sm text-slate-500">Placed on {new Date(order.orderDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-6">
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium flex items-center ${getStatusColor(order.status)}`}>
+                      {getStatusIcon(order.status)}
+                      {order.status}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-slate-500">Total Amount</p>
+                      <p className="font-bold text-lg">${order.totalAmount.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
-            ))}
+          ))}
         </div>
       )}
     </div>

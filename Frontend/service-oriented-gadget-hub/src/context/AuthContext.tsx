@@ -11,9 +11,11 @@ interface LoginCredentials {
 
 interface AuthContextType {
   user: User | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,23 +48,33 @@ const buildUserFromToken = (): User | null => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => buildUserFromToken());
 
-const login = async ({ email, password }: LoginCredentials): Promise<User> => {
-  const res = await axiosInstance.post(API_ENDPOINTS.LOGIN, { email, password });
-  const { token } = res.data;
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!token) throw new Error('No token received');
+  const login = async ({ email, password }: LoginCredentials): Promise<User> => {
+    setIsLoading(true);
+    try {
+      const res = await axiosInstance.post(API_ENDPOINTS.LOGIN, { email, password });
+      const { token } = res.data;
 
-  localStorage.setItem('token', token);
+      if (!token) throw new Error('No token received');
 
-  const hydratedUser = buildUserFromToken();
-  if (!hydratedUser) {
-    throw new Error('Failed to hydrate user');
-  }
+      localStorage.setItem('token', token);
 
-  setUser(hydratedUser);
-  return hydratedUser; // 🔥 RETURN USER
-};
+      const hydratedUser = buildUserFromToken();
+      if (!hydratedUser) {
+        throw new Error('Failed to hydrate user');
+      }
 
+      setUser(hydratedUser);
+      return hydratedUser;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    console.log('Google login not implemented');
+  };
 
   const logout = () => {
     localStorage.clear();
@@ -73,10 +85,12 @@ const login = async ({ email, password }: LoginCredentials): Promise<User> => {
     () => ({
       user,
       login,
+      loginWithGoogle,
       logout,
       isAuthenticated: !!user,
+      isLoading,
     }),
-    [user]
+    [user, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,12 +9,30 @@ export interface QuotationRequestItem {
 export interface Quotation {
   id: number;
   quotationId?: number; // Backend might send either
+  clickedDate: string; // The error log said 'requestDate' does not exist on type 'Quotation'. Did you mean 'requestedDate'? But dashboard uses requestDate or requestedDate. I will add both or just requestedDate.
+  // Actually, let's stick to what the dashbaord uses or fix the dashboard. Dashboard uses `req.requestDate || req.requestedDate`.
   requestedDate: string;
-  status: 'Pending' | 'Approved' | 'Rejected' | 'Responded';
+  requestDate?: string; // For compatibility
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Responded' | 'Selected' | 'ConvertedToOrder'; // Added more statuses
   distributorName?: string;
   totalAmount?: number;
   finalPrice?: number;
-  products?: { productId: number; productName: string; quantity: number }[]; // For details view
+  products?: { productId: number; productName: string; quantity: number }[];
+
+  // Re-added fields for compatibility
+  items: {
+    id?: number;
+    productId: number;
+    productName?: string;
+    quantity: number;
+    offeredUnitPrice?: number;
+  }[];
+  customerId?: number;
+  distributorId?: number;
+  expiryDate?: string;
+  grandTotal?: number;
+  requestType?: 'SingleDistributor' | 'MultiDistributor';
+  distributorResponses?: any[]; // Simplified for now
 }
 
 export interface NegotiatedItem {
@@ -31,7 +49,8 @@ export const quotationService = {
   },
 
   // POST /api/Quotation/request (Manual)
-  createQuotation: async (data: { productName: string; quantity: number; notes: string }): Promise<void> => {
+  // POST /api/Quotation/request (Manual)
+  createQuotation: async (data: { productId?: number; productName?: string; quantity: number; notes: string }): Promise<void> => {
     await axiosInstance.post(`${QUOTATION_API_URL}/request`, data);
   },
 

@@ -48,11 +48,10 @@ namespace samplekala.Controllers
         [HttpGet("pending-requests")]
         public async Task<IActionResult> GetPendingRequests()
         {
-            // You can implement a method in the service to get all quotes with 'Pending' status
-            var distributorId = GetUserId();
-            var quotes = await _quotationService.GetDistributorQuotations(distributorId);
+            var quotes = await _quotationService.GetAllPendingQuotations();
             return Ok(quotes);
         }
+
 
         // 4. DISTRIBUTOR: Approve a quote and set final negotiated prices
         [Authorize(Roles = "Distributor,Admin")]
