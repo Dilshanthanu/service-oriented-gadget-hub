@@ -1,17 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
+import { useAlert } from '../../context/AlertContext';
 import { Button } from '../../components/Button';
 import { Card, CardContent } from '../../components/Card';
-import { Trash2, Plus, Minus, ArrowRight, XCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Trash2, Plus, Minus, ArrowRight, XCircle, FileText } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { quotationService } from '../../services/quotationService';
 
 export const Cart: React.FC = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, total } = useCart();
+  const { showAlert } = useAlert();
+  const navigate = useNavigate();
+  const [requestingQuote, setRequestingQuote] = useState(false);
 
   const handleClearCart = async () => {
     const confirmed = window.confirm('Are you sure you want to clear the entire cart?');
     if (!confirmed) return;
     await clearCart();
+  };
+
+  const handleRequestQuotation = async () => {
+    if (cartItems.length === 0) return;
+    
+    // Optional: confirm action
+    if (!window.confirm("Request a quotation for these items?")) return;
+
+    setRequestingQuote(true);
+    try {
+      await quotationService.requestQuotationFromCart();
+      showAlert("Quotation requested successfully! Check 'My Quotations'.", 'success');
+      await clearCart(); // Typically requesting quote clears cart or moves items to quote
+      navigate('/quotations');
+    } catch (error: any) {
+      console.error("Failed to request quotation", error);
+      showAlert(error.response?.data?.message || "Failed to request quotation", 'error');
+    } finally {
+      setRequestingQuote(false);
+    }
   };
 
   if (cartItems.length === 0) {
@@ -123,11 +148,29 @@ export const Cart: React.FC = () => {
                 </div>
               </div>
 
-              <Link to='/checkout' className='block'>
-                <Button className='w-full text-lg py-6'>
-                  Checkout <ArrowRight className='w-5 h-5 ml-2' />
+              <div className='space-y-3'>
+                <Link to='/checkout' className='block'>
+                  <Button className='w-full text-lg py-6'>
+                    Checkout <ArrowRight className='w-5 h-5 ml-2' />
+                  </Button>
+                </Link>
+                
+                <Button 
+                  className='w-full text-lg py-6' 
+                  variant='outline'
+                  onClick={handleRequestQuotation}
+                  disabled={requestingQuote}
+                >
+                  {requestingQuote ? 'Requesting...' : (
+                    <>
+                       Request Quotation <FileText className='w-5 h-5 ml-2' />
+                    </>
+                  )}
                 </Button>
-              </Link>
+                 <p className='text-xs text-center text-slate-500'>
+                    Bulk order? Request a custom quote from our distributors.
+                 </p>
+              </div>
             </CardContent>
           </Card>
         </div>

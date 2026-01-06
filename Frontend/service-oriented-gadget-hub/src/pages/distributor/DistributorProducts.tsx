@@ -8,7 +8,7 @@ import { Input } from '../../components/Input';
 import { Card, CardContent } from '../../components/Card';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 
-export const AdminProducts: React.FC = () => {
+export const DistributorProducts: React.FC = () => {
   const { user } = useAuth();
   const { showAlert } = useAlert();
 
@@ -26,11 +26,35 @@ export const AdminProducts: React.FC = () => {
     imageUrl: '',
   });
 
-  useEffect(() => {
-    getProducts()
-      .then(setProducts)
-      .catch(console.error);
-  }, []);
+useEffect(() => {
+ 
+  if (!user) {
+    setProducts([]); // optional: clear table while loading
+    return;
+  }
+
+  const distributorId = Number(user.id);
+
+  getProducts()
+    .then(allProducts => {
+      if (!Array.isArray(allProducts)) {
+        setProducts([]);
+        return;
+      }
+
+      const myProducts = allProducts.filter(
+        product => product.distributorId === distributorId
+      );
+
+      setProducts(myProducts);
+    })
+    .catch(error => {
+      console.error('Failed to load products', error);
+      setProducts([]);
+    });
+}, [user]);
+
+
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);

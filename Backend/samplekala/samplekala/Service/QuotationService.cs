@@ -25,11 +25,16 @@ namespace samplekala.Service
                 .ToListAsync();
 
             if (!cartItems.Any()) throw new Exception("Cart is empty");
+var distributorId = cartItems.First().Product.DistributorId;
 
+if (cartItems.Any(c => c.Product.DistributorId != distributorId))
+{
+    throw new Exception("Cart contains products from multiple distributors");
+}
             var quotation = new Quotation
             {
                 CustomerId = userId,
-                DistributorId = 1, // Logic to assign a distributor
+                DistributorId = distributorId, // Assign the distributor based on cart items
                 ExpiryDate = DateTime.Now.AddDays(7),
                 Status = QuotationStatus.Pending,
                 Items = cartItems.Select(c => new QuotationItem
@@ -76,7 +81,6 @@ namespace samplekala.Service
             };
         }
 
-        // MOVED INSIDE THE CLASS: Get quotes for a specific distributor
         public async Task<List<Quotation>> GetDistributorQuotations(int distributorId)
         {
             return await _repo.GetByDistributorIdAsync(distributorId);

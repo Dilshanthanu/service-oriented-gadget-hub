@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useAlert } from '../../context/AlertContext';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Card';
@@ -8,6 +9,7 @@ import { updateUser } from '../../services/api';
 
 export const Profile: React.FC = () => {
   const { user } = useAuth();
+  const { showAlert } = useAlert();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -20,10 +22,10 @@ export const Profile: React.FC = () => {
     if (user) {
       try {
         await updateUser(user.id, formData);
-        alert('Profile updated successfully (Mock)');
+        showAlert('Profile updated successfully (Mock)', 'success');
         setIsEditing(false);
       } catch (error) {
-        alert('Failed to update profile');
+        showAlert('Failed to update profile', 'error');
       }
     }
   };
